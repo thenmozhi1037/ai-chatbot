@@ -31,12 +31,10 @@ async function sendMessage() {
         addBotMessage(data.reply);
 
     } catch (error) {
+    typing.style.display = "none";
+    console.log(error);
+    addBotMessage("Error: " + error.message);
 
-        typing.style.display = "none";
-
-        addBotMessage("⚠️ Server Error");
-
-        console.log(error);
     }
 }
 
