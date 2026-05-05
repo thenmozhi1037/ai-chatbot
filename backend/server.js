@@ -50,10 +50,6 @@ await client.chat.completions.create({
 const botReply =
 completion.choices[0].message.content;
 
-// await Chat.create({
-//     userMessage,
-//     botReply
-// });
 
 res.json({
     reply: botReply
