@@ -46,23 +46,18 @@ await client.chat.completions.create({
         }
     ]
 });
-// await Chat.create({
-//   message,
-//   reply
-// });
 
 const botReply =
 completion.choices[0].message.content;
 
-        /* Save Chat */
-        await Chat.create({
-            userMessage,
-            botReply
-        });
+// await Chat.create({
+//     userMessage,
+//     botReply
+// });
 
-        res.json({
-            reply: botReply
-        });
+res.json({
+    reply: botReply
+});
 
     } catch (err) {
 
