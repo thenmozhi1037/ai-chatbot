@@ -22,18 +22,6 @@ mongoose.connect(process.env.MONGO_URI)
 .catch(err => console.log(err));
 
 /* Schema */
-const chatSchema = new mongoose.Schema({
-    userMessage: String,
-    botReply: String
-});
-const userSchema = new mongoose.Schema({
-    username: String,
-    email: String,
-    password: String
-});
-
-const User = mongoose.model("User", userSchema);
-
 const Chat = mongoose.model("Chat", chatSchema);
 const userSchema = new mongoose.Schema({
     username: String,
