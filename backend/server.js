@@ -1,3 +1,5 @@
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -24,8 +26,22 @@ const chatSchema = new mongoose.Schema({
     userMessage: String,
     botReply: String
 });
+const userSchema = new mongoose.Schema({
+    username: String,
+    email: String,
+    password: String
+});
+
+const User = mongoose.model("User", userSchema);
 
 const Chat = mongoose.model("Chat", chatSchema);
+const userSchema = new mongoose.Schema({
+    username: String,
+    email: String,
+    password: String
+});
+
+const User = mongoose.model("User", userSchema); 
 
 /* Chat API */
 app.post("/chat", async (req, res) => {
@@ -45,6 +61,76 @@ await client.chat.completions.create({
             content: userMessage
         }
     ]
+});
+app.post("/signup", async (req, res) => {
+
+    try {
+
+        const { username, email, password } = req.body;
+
+        const existingUser = await User.findOne({ email });
+
+        if (existingUser) {
+            return res.json({
+                message: "User already exists"
+            });
+        }
+
+        const hashedPassword =
+        await bcrypt.hash(password, 10);
+
+        await User.create({
+            username,
+            email,
+            password: hashedPassword
+        });
+
+        res.json({
+            message: "Signup Successful"
+        });
+
+    } catch (err) {
+
+        res.json({
+            message: "Signup Error"
+        });
+    }
+});
+app.post("/login", async (req, res) => {
+
+    try {
+
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+
+            return res.json({
+                message: "User not found"
+            });
+        }
+
+        const isMatch =
+        await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+
+            return res.json({
+                message: "Wrong Password"
+            });
+        }
+
+        res.json({
+            message: "Login Successful"
+        });
+
+    } catch (err) {
+
+        res.json({
+            message: "Login Error"
+        });
+    }
 });
 
 const botReply =
@@ -68,4 +154,13 @@ res.json({
 /* Run Server */
 app.listen(3000, () => {
     console.log("Server running on port 3000");
+});
+app.get("/history", async (req, res) => {
+    try {
+        const chats = await Chat.find().sort({ _id: -1 }).limit(20);
+        res.json(chats);
+    } catch (err) {
+        res.json([]);
+    }
+
 });

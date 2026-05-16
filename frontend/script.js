@@ -71,3 +71,31 @@ userInput.addEventListener("keypress", function (e) {
         sendMessage();
     }
 });
+async function loadHistory() {
+    try {
+        const res = await fetch("https://chatassist-backend.onrender.com/history");
+        const data = await res.json();
+
+        const historyDiv = document.getElementById("historyList");
+        historyDiv.innerHTML = "";
+
+        data.forEach(chat => {
+            const div = document.createElement("div");
+            div.className = "history-item";
+            div.innerText = chat.userMessage;
+
+            div.onclick = () => {
+                addUserMessage(chat.userMessage);
+                addBotMessage(chat.botReply);
+            };
+
+            historyDiv.appendChild(div);
+        });
+
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+/* Load on page open */
+loadHistory();
