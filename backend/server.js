@@ -1,4 +1,3 @@
-```js
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import express from "express";
@@ -179,9 +178,8 @@ app.get("/history", async (req, res) => {
     }
 });
 
-/* Run Server */
 app.listen(3000, () => {
 
     console.log("Server running on port 3000");
 });
-```
+
