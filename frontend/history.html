@@ -80,8 +80,20 @@ cursor:pointer;">
 <div
 class="history-container"
 id="historyContainer">
-
 </div>
+
+<input
+type="text"
+id="searchBox"
+placeholder="Search chats..."
+onkeyup="searchHistory()"
+style="
+width:90%;
+padding:12px;
+margin:20px;
+border:none;
+border-radius:10px;">
+
 <input
 type="text"
 id="searchBox"
@@ -134,6 +146,33 @@ function searchHistory(){
 
 async function loadHistory(){
 
+    function searchHistory(){
+
+    const input =
+    document.getElementById(
+        "searchBox"
+    ).value.toLowerCase();
+
+    const cards =
+    document.getElementsByClassName(
+        "searchable"
+    );
+
+    for(let i=0;i<cards.length;i++){
+
+        const text =
+        cards[i].innerText.toLowerCase();
+
+        if(text.includes(input)){
+            cards[i].style.display =
+            "block";
+        }
+        else{
+            cards[i].style.display =
+            "none";
+        }
+    }
+}
     async function deleteHistory(){
 
     const confirmDelete =
@@ -178,7 +217,7 @@ async function loadHistory(){
 
         container.innerHTML += `
 
-        <div class="chat-card">
+        <div class="chat-card searchable">
 
             <div class="user">
                 <b>You:</b>

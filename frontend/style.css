@@ -333,3 +333,27 @@ body {
     cursor:pointer;
     color:white;
 }
+.light-mode{
+    background:#f1f5f9;
+}
+
+.light-mode .chat-container{
+    background:white;
+}
+
+.light-mode .chat-box{
+    color:black;
+}
+
+.light-mode input{
+    background:#e2e8f0;
+    color:black;
+}
+
+.light-mode .bot{
+    background:#cbd5e1;
+    color:black;
+}
+.light-mode .input-area{
+    background:#cbd5e1;
+}
