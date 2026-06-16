@@ -187,4 +187,27 @@ app.listen(3000, () => {
 
     console.log("Server running on port 3000");
 });
+app.delete("/history", async(req,res)=>{
+    app.delete("/history", async (req, res) => {
 
+    try {
+
+        const userId = req.body.userId;
+
+        await Chat.deleteMany({
+            userId
+        });
+
+        res.json({
+            message: "History Deleted"
+        });
+
+    } catch (err) {
+
+        res.json({
+            message: "Delete Failed"
+        });
+    }
+});
+
+});

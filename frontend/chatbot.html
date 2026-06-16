@@ -100,20 +100,35 @@
     style="
     position:absolute;
     left:20px;
-    cursor:pointer;
-    ">
-        CHAT HISTORY📜
+    cursor:pointer;">
+        📜
     </span>
 
-   <span id="welcomeUser">
-    ChatAssist AI
-</span>
+    <span
+    onclick="newChat()"
+    style="
+    position:absolute;
+    right:20px;
+    cursor:pointer;">
+        ➕
+    </span>
+
+    <span id="welcomeUser">
+        ChatAssist AI
+    </span>
 
 </div>
 
     <div class="chat-box" id="chatBox">
 
     </div>
+    <div id="typing"
+style="
+display:none;
+padding:10px;
+color:white;">
+🤖 AI is typing...
+</div>
 
     <div class="input-area">
 
@@ -125,12 +140,16 @@
         <button onclick="sendMessage()">
             Send
         </button>
+        <button onclick="newChat()">➕ New Chat</button>
 
     </div>
 
 </div>
 
 <script>
+    function newChat(){
+    document.getElementById("chatBox").innerHTML = "";
+}
     document.getElementById("welcomeUser")
 .innerText =
 "🤖 ChatAssist AI - " +
@@ -140,6 +159,7 @@ async function sendMessage(){
 
     const message =
     document.getElementById("message").value;
+    document.getElementById("typing").style.display = "block";
 
     const chatBox =
     document.getElementById("chatBox");
@@ -168,6 +188,7 @@ async function sendMessage(){
     });
 
     const data = await response.json();
+    document.getElementById("typing").style.display = "none";
 
     chatBox.innerHTML += `
     <div class="message bot">
@@ -181,6 +202,13 @@ async function sendMessage(){
 function openHistory(){
 
     window.location.href = "history.html";
+}
+<div id="typing" style="display:none;color:white;padding:10px;">
+🤖 AI is typing...
+</div>
+function newChat(){
+
+    document.getElementById("chatBox").innerHTML = "";
 }
 
 </script>

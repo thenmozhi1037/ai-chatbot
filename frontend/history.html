@@ -64,6 +64,15 @@ body{
         ←
     </span>
 
+    <span
+onclick="deleteHistory()"
+style="
+position:absolute;
+right:20px;
+cursor:pointer;">
+🗑
+</span>
+
     Chat History
 
 </div>
@@ -73,6 +82,23 @@ class="history-container"
 id="historyContainer">
 
 </div>
+<input
+type="text"
+id="searchBox"
+placeholder="🔍 Search chats..."
+onkeyup="searchHistory()"
+style="
+width:90%;
+margin:20px;
+padding:12px;
+border:none;
+border-radius:10px;
+font-size:16px;">
+<input
+type="text"
+id="search"
+placeholder="Search chats..."
+onkeyup="searchHistory()">
 
 <script>
 
@@ -80,8 +106,60 @@ function goBack(){
 
     window.location.href ="chatbot.html";
 }
+function searchHistory(){
+
+    const value =
+    document.getElementById("searchBox")
+    .value
+    .toLowerCase();
+
+    const cards =
+    document.querySelectorAll(".chat-card");
+
+    cards.forEach(card => {
+
+        if(
+            card.innerText
+            .toLowerCase()
+            .includes(value)
+        ){
+            card.style.display = "block";
+        }
+
+        else{
+            card.style.display = "none";
+        }
+    });
+}
 
 async function loadHistory(){
+
+    async function deleteHistory(){
+
+    const confirmDelete =
+    confirm("Delete all chats?");
+
+    if(!confirmDelete){
+        return;
+    }
+
+    await fetch(
+    "https://chatassist-backend.onrender.com/history",
+    {
+        method:"DELETE",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+            userId:
+            localStorage.getItem("userId")
+        })
+    });
+
+    location.reload();
+}
 
     const userId =
     localStorage.getItem("userId");
@@ -118,6 +196,30 @@ async function loadHistory(){
 }
 
 loadHistory();
+function searchHistory(){
+
+    const value =
+    document.getElementById("search")
+    .value.toLowerCase();
+
+    const cards =
+    document.querySelectorAll(".chat-card");
+
+    cards.forEach(card=>{
+
+        if(card.innerText
+        .toLowerCase()
+        .includes(value)){
+
+            card.style.display="block";
+        }
+
+        else{
+
+            card.style.display="none";
+        }
+    });
+}
 
 </script>
 
