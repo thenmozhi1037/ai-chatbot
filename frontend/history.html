@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Chat History</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial;
+    background:#0f172a;
+    color:white;
+}
+
+.header{
+    background:#6366f1;
+    padding:20px;
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.history-container{
+    padding:20px;
+}
+
+.chat-card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:20px;
+}
+
+.user{
+    color:#818cf8;
+    margin-bottom:10px;
+}
+
+.bot{
+    color:#e2e8f0;
+}
+
+.back-btn{
+    position:absolute;
+    left:20px;
+    top:20px;
+    cursor:pointer;
+    font-size:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+    <span
+    class="back-btn"
+    onclick="goBack()">
+        ←
+    </span>
+
+    Chat History
+
+</div>
+
+<div
+class="history-container"
+id="historyContainer">
+
+</div>
+
+<script>
+
+function goBack(){
+
+    window.location.href ="chatbot.html";
+}
+
+async function loadHistory(){
+
+    const userId =
+    localStorage.getItem("userId");
+
+    const response = await fetch(
+    `https://chatassist-backend.onrender.com/history?userId=${userId}`
+    );
+
+    const chats = await response.json();
+    const container =
+    document.getElementById(
+    "historyContainer"
+    );
+
+    chats.forEach(chat => {
+
+        container.innerHTML += `
+
+        <div class="chat-card">
+
+            <div class="user">
+                <b>You:</b>
+                ${chat.userMessage}
+            </div>
+
+            <div class="bot">
+                <b>AI:</b>
+                ${chat.botReply}
+            </div>
+
+        </div>
+        `;
+    });
+}
+
+loadHistory();
+
+</script>
+
+</body>
+</html>
