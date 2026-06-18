@@ -187,8 +187,8 @@ app.listen(3000, () => {
 
     console.log("Server running on port 3000");
 });
-app.delete("/history", async(req,res)=>{
-    app.delete("/history", async (req, res) => {
+/* Delete History API */
+app.delete("/history", async (req, res) => {
 
     try {
 
@@ -210,4 +210,8 @@ app.delete("/history", async(req,res)=>{
     }
 });
 
+app.listen(3000, () => {
+
+    console.log("Server running on port 3000");
 });
+   

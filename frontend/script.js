@@ -1,111 +1,274 @@
-const chatBox = document.getElementById("chat-box");
-const userInput = document.getElementById("user-input");
+const chatBox = document.getElementById("chatBox");
 const typing = document.getElementById("typing");
 
+/* Send Message */
 async function sendMessage() {
 
-    const message = userInput.value.trim();
+    const input =
+    document.getElementById("message");
+
+    const message =
+    input.value.trim();
 
     if (!message) return;
 
-    addUserMessage(message);
+    chatBox.innerHTML += `
+    <div class="message user">
+        ${message}
+    </div>
+    `;
 
-    userInput.value = "";
+    input.value = "";
+
+    chatBox.scrollTop =
+    chatBox.scrollHeight;
 
     typing.style.display = "block";
 
     try {
 
-        const response = await fetch("https://chatassist-backend.onrender.com/chat", {
+        const response = await fetch(
+        "https://chatassist-backend.onrender.com/chat",
+        {
             method: "POST",
+
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ message })
+
+            body: JSON.stringify({
+                message,
+                userId:
+                localStorage.getItem("userId")
+            })
         });
 
-        const data = await response.json();
+        const data =
+        await response.json();
 
         typing.style.display = "none";
 
-        addBotMessage(data.reply);
+        chatBox.innerHTML += `
+        <div class="message bot">
+            ${data.reply}
+        </div>
+        `;
 
-    } catch (error) {
-    typing.style.display = "none";
-    console.log(error);
-    addBotMessage("Error: " + error.message);
+        chatBox.scrollTop =
+        chatBox.scrollHeight;
 
+        loadSidebarHistory();
+
+    } catch (err) {
+
+        typing.style.display = "none";
+
+        chatBox.innerHTML += `
+        <div class="message bot">
+            Error connecting to AI.
+        </div>
+        `;
     }
 }
 
-function addUserMessage(message) {
+/* Enter Key */
+document.addEventListener(
+"keydown",
+function(e){
 
-    const div = document.createElement("div");
-
-    div.className = "message user-message";
-
-    div.innerText = message;
-
-    chatBox.appendChild(div);
-
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function addBotMessage(message) {
-
-    const div = document.createElement("div");
-
-    div.className = "message bot-message";
-
-    div.innerText = message;
-
-    chatBox.appendChild(div);
-
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-userInput.addEventListener("keypress", function (e) {
-
-    if (e.key === "Enter") {
-
+    if(e.key === "Enter"){
         sendMessage();
     }
 });
-async function loadHistory() {
-    try {
-        const res = await fetch("https://chatassist-backend.onrender.com/history");
-        const data = await res.json();
 
-        const historyDiv = document.getElementById("historyList");
-        historyDiv.innerHTML = "";
+/* Voice Input */
+function startVoice(){
 
-        data.forEach(chat => {
-            const div = document.createElement("div");
-            div.className = "history-item";
-            div.innerText = chat.userMessage;
+    const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
 
-            div.onclick = () => {
-                addUserMessage(chat.userMessage);
-                addBotMessage(chat.botReply);
+    if(!SpeechRecognition){
+
+        alert(
+        "Voice input not supported in this browser."
+        );
+
+        return;
+    }
+
+    const recognition =
+    new SpeechRecognition();
+
+    recognition.lang = "en-US";
+
+    recognition.start();
+
+    recognition.onresult =
+    function(event){
+
+        document.getElementById(
+        "message"
+        ).value =
+        event.results[0][0].transcript;
+    };
+}
+
+/* Theme Toggle */
+function toggleTheme(){
+
+    document.body.classList.toggle(
+    "light-mode"
+    );
+
+    if(
+        document.body.classList.contains(
+        "light-mode"
+        )
+    ){
+        localStorage.setItem(
+        "theme",
+        "light"
+        );
+    }
+    else{
+        localStorage.setItem(
+        "theme",
+        "dark"
+        );
+    }
+}
+
+/* Load Theme */
+window.onload = function(){
+
+    if(
+        localStorage.getItem(
+        "theme"
+        ) === "light"
+    ){
+        document.body.classList.add(
+        "light-mode"
+        );
+    }
+
+    loadSidebarHistory();
+};
+
+/* New Chat */
+function newChat(){
+
+    chatBox.innerHTML = "";
+}
+
+/* Open History Page */
+function openHistory(){
+
+    window.location.href =
+    "history.html";
+}
+
+/* Sidebar History */
+async function loadSidebarHistory(){
+
+    try{
+
+        const userId =
+        localStorage.getItem(
+        "userId"
+        );
+
+        const response =
+        await fetch(
+        `https://chatassist-backend.onrender.com/history?userId=${userId}`
+        );
+
+        const chats =
+        await response.json();
+
+        const historyList =
+        document.getElementById(
+        "historyList"
+        );
+
+        if(!historyList) return;
+
+        historyList.innerHTML = "";
+
+        chats.slice(0,15)
+        .forEach(chat=>{
+
+            const div =
+            document.createElement(
+            "div"
+            );
+
+            div.className =
+            "history-item";
+
+            div.innerText =
+            chat.userMessage
+            .substring(0,40);
+
+            div.onclick =
+            function(){
+
+                chatBox.innerHTML = `
+                <div class="message user">
+                    ${chat.userMessage}
+                </div>
+
+                <div class="message bot">
+                    ${chat.botReply}
+                </div>
+                `;
             };
 
-            historyDiv.appendChild(div);
+            historyList.appendChild(
+            div
+            );
         });
 
-    } catch (err) {
+    }catch(err){
+
         console.log(err);
     }
 }
-function toggleHistory(){
 
-    document
-    .getElementById("historyPanel")
-    .classList.toggle("show");
+/* Search History */
+const searchInput =
+document.getElementById(
+"searchInput"
+);
+
+if(searchInput){
+
+    searchInput.addEventListener(
+    "keyup",
+    function(){
+
+        const value =
+        this.value.toLowerCase();
+
+        const items =
+        document.querySelectorAll(
+        ".history-item"
+        );
+
+        items.forEach(item=>{
+
+            if(
+                item.innerText
+                .toLowerCase()
+                .includes(value)
+            ){
+                item.style.display =
+                "block";
+            }
+            else{
+                item.style.display =
+                "none";
+            }
+        });
+    });
 }
-function openHistory(){
-
-    window.location.href = "history.html";
-}
-
-/* Load on page open */
-loadHistory();

@@ -3,262 +3,200 @@
 
 <head>
 
-<title>Chat History</title>
+    <title>Chat History</title>
 
-<style>
-
-body{
-    margin:0;
-    font-family:Arial;
-    background:#0f172a;
-    color:white;
-}
-
-.header{
-    background:#6366f1;
-    padding:20px;
-    text-align:center;
-    font-size:24px;
-    font-weight:bold;
-}
-
-.history-container{
-    padding:20px;
-}
-
-.chat-card{
-    background:#1e293b;
-    padding:20px;
-    border-radius:15px;
-    margin-bottom:20px;
-}
-
-.user{
-    color:#818cf8;
-    margin-bottom:10px;
-}
-
-.bot{
-    color:#e2e8f0;
-}
-
-.back-btn{
-    position:absolute;
-    left:20px;
-    top:20px;
-    cursor:pointer;
-    font-size:20px;
-}
-
-</style>
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-<div class="header">
+<div class="app-container">
 
-    <span
-    class="back-btn"
-    onclick="goBack()">
-        ←
-    </span>
+    <div class="chat-container">
 
-    <span
-onclick="deleteHistory()"
-style="
-position:absolute;
-right:20px;
-cursor:pointer;">
-🗑
-</span>
+        <div class="header">
 
-    Chat History
+            <span>
+                📜 Chat History
+            </span>
+
+            <div class="header-icons">
+
+                <span
+                class="icon-btn"
+                onclick="deleteHistory()">
+                    🗑️
+                </span>
+
+                <span
+                class="icon-btn"
+                onclick="goBack()">
+                    ←
+                </span>
+
+            </div>
+
+        </div>
+
+        <div style="padding:15px;">
+
+            <input
+            type="text"
+            id="searchBox"
+            class="search-box"
+            placeholder="🔍 Search chats...">
+
+        </div>
+
+        <div
+        class="chat-box"
+        id="historyContainer">
+        </div>
+
+    </div>
 
 </div>
-
-<div
-class="history-container"
-id="historyContainer">
-</div>
-
-<input
-type="text"
-id="searchBox"
-placeholder="Search chats..."
-onkeyup="searchHistory()"
-style="
-width:90%;
-padding:12px;
-margin:20px;
-border:none;
-border-radius:10px;">
-
-<input
-type="text"
-id="searchBox"
-placeholder="🔍 Search chats..."
-onkeyup="searchHistory()"
-style="
-width:90%;
-margin:20px;
-padding:12px;
-border:none;
-border-radius:10px;
-font-size:16px;">
-<input
-type="text"
-id="search"
-placeholder="Search chats..."
-onkeyup="searchHistory()">
 
 <script>
 
 function goBack(){
 
-    window.location.href ="chatbot.html";
+    window.location.href =
+    "chatbot.html";
 }
-function searchHistory(){
+
+/* Load History */
+async function loadHistory(){
+
+    try{
+
+        const userId =
+        localStorage.getItem(
+        "userId"
+        );
+
+        const response =
+        await fetch(
+        `https://chatassist-backend.onrender.com/history?userId=${userId}`
+        );
+
+        const chats =
+        await response.json();
+
+        const container =
+        document.getElementById(
+        "historyContainer"
+        );
+
+        container.innerHTML = "";
+
+        chats.forEach(chat=>{
+
+            container.innerHTML += `
+
+            <div class="history-item searchable">
+
+                <div style="
+                color:#818cf8;
+                margin-bottom:10px;">
+                    <b>You:</b>
+                    ${chat.userMessage}
+                </div>
+
+                <div>
+                    <b>AI:</b>
+                    ${chat.botReply}
+                </div>
+
+            </div>
+
+            `;
+        });
+
+    }catch(err){
+
+        console.log(err);
+    }
+}
+
+/* Search */
+document
+.getElementById("searchBox")
+.addEventListener(
+"keyup",
+function(){
 
     const value =
-    document.getElementById("searchBox")
-    .value
-    .toLowerCase();
+    this.value.toLowerCase();
 
     const cards =
-    document.querySelectorAll(".chat-card");
+    document.querySelectorAll(
+    ".searchable"
+    );
 
-    cards.forEach(card => {
+    cards.forEach(card=>{
 
         if(
             card.innerText
             .toLowerCase()
             .includes(value)
         ){
-            card.style.display = "block";
-        }
-
-        else{
-            card.style.display = "none";
-        }
-    });
-}
-
-async function loadHistory(){
-
-    function searchHistory(){
-
-    const input =
-    document.getElementById(
-        "searchBox"
-    ).value.toLowerCase();
-
-    const cards =
-    document.getElementsByClassName(
-        "searchable"
-    );
-
-    for(let i=0;i<cards.length;i++){
-
-        const text =
-        cards[i].innerText.toLowerCase();
-
-        if(text.includes(input)){
-            cards[i].style.display =
+            card.style.display =
             "block";
         }
         else{
-            cards[i].style.display =
+            card.style.display =
             "none";
         }
-    }
-}
-    async function deleteHistory(){
-
-    const confirmDelete =
-    confirm("Delete all chats?");
-
-    if(!confirmDelete){
-        return;
-    }
-
-    await fetch(
-    "https://chatassist-backend.onrender.com/history",
-    {
-        method:"DELETE",
-
-        headers:{
-            "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify({
-            userId:
-            localStorage.getItem("userId")
-        })
     });
+});
 
-    location.reload();
-}
+/* Delete History */
+async function deleteHistory(){
 
-    const userId =
-    localStorage.getItem("userId");
-
-    const response = await fetch(
-    `https://chatassist-backend.onrender.com/history?userId=${userId}`
+    const ok =
+    confirm(
+    "Delete all chat history?"
     );
 
-    const chats = await response.json();
-    const container =
-    document.getElementById(
-    "historyContainer"
-    );
+    if(!ok) return;
 
-    chats.forEach(chat => {
+    try{
 
-        container.innerHTML += `
+        await fetch(
+        "https://chatassist-backend.onrender.com/history",
+        {
+            method:"DELETE",
 
-        <div class="chat-card searchable">
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
 
-            <div class="user">
-                <b>You:</b>
-                ${chat.userMessage}
-            </div>
+            body:JSON.stringify({
+                userId:
+                localStorage.getItem(
+                "userId"
+                )
+            })
+        });
 
-            <div class="bot">
-                <b>AI:</b>
-                ${chat.botReply}
-            </div>
+        alert(
+        "History Deleted"
+        );
 
-        </div>
-        `;
-    });
+        loadHistory();
+
+    }catch(err){
+
+        alert(
+        "Delete Failed"
+        );
+    }
 }
 
 loadHistory();
-function searchHistory(){
-
-    const value =
-    document.getElementById("search")
-    .value.toLowerCase();
-
-    const cards =
-    document.querySelectorAll(".chat-card");
-
-    cards.forEach(card=>{
-
-        if(card.innerText
-        .toLowerCase()
-        .includes(value)){
-
-            card.style.display="block";
-        }
-
-        else{
-
-            card.style.display="none";
-        }
-    });
-}
 
 </script>
 
